@@ -5,8 +5,7 @@ import { io } from "socket.io-client";
 import "./WaitingOnCustomer.css";
 
 const socket = io("https://socket1-8bma.onrender.com", {
-  transports: ["websocket"],
-  upgrade: false,
+  withCredentials: true,
 });
 
 
