@@ -4,7 +4,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "./WaitingOnCustomer.css";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://customer-desk-backend.onrender.com");
 
 const WaitingOnCustomer = () => {
   const [tickets, setTickets] = useState([]);
@@ -19,7 +19,7 @@ const WaitingOnCustomer = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/tickets");
+        const response = await axios.get("https://customer-desk-backend.onrender.com/api/tickets");
         if (response.data.success) {
           const waitingTickets = response.data.tickets
             .filter((ticket) => ticket.status === "waiting for response")
