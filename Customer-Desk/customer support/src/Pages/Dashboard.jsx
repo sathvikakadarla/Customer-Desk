@@ -26,7 +26,7 @@ const Dashboard = () => {
     useEffect(() => {
         const fetchTickets = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/tickets");
+                const response = await fetch("https://customer-desk-backend.onrender.com/api/tickets");
                 const data = await response.json();
                 if (data.success) {
                     const totalTickets = data.tickets.length;
