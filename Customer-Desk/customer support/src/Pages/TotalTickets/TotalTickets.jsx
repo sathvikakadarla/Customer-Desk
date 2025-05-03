@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import "./TotalTickets.css";
 
-const socket = io("https://socket1-8bma.onrender.com"
+const socket = io("https://socket1-8bma.onrender.com");
 
 const TotalTickets = () => {
   const [tickets, setTickets] = useState([]);
