@@ -4,7 +4,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import "./WaitingOnCustomer.css";
 
-const socket = io("https://socket1-8bma.onrender.com"
+const socket = io("https://socket1-8bma.onrender.com");
 
 const WaitingOnCustomer = () => {
   const [tickets, setTickets] = useState([]);
