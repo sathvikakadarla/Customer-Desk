@@ -19,7 +19,8 @@ const port = process.env.PORT || 5000;
 // Allowed frontend origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://customer-desk-frontend.onrender.com"
+  "https://customer-desk-frontend.onrender.com",
+  "https://frontend-31u7.onrender.com"
 ];
 
 // CORS middleware (HTTP)
