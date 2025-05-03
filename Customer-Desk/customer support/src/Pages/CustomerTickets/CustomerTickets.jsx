@@ -3,10 +3,7 @@ import { io } from "socket.io-client";
 import axios from "axios";
 import "./CustomerTickets.css";
 
-const socket = io("https://socket1-8bma.onrender.com", {
-  withCredentials: true,
-  transports: ["websocket", "polling"]
-});
+const socket = io("https://socket1-8bma.onrender.com"
 
 const CustomerTickets = () => {
   const [tickets, setTickets] = useState([]);
