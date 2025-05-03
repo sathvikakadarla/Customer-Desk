@@ -6,8 +6,8 @@ import "./WaitingOnCustomer.css";
 
 const socket = io("https://socket1-8bma.onrender.com", {
   withCredentials: true,
+  transports: ["websocket", "polling"]
 });
-
 
 const WaitingOnCustomer = () => {
   const [tickets, setTickets] = useState([]);
