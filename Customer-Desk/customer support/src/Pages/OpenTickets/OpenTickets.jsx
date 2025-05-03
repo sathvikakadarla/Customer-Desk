@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { io } from "socket.io-client";
 import "./OpenTickets.css";
 
-const socket = io("https://socket1-8bma.onrender.com");
+const socket = io("https://socket1-8bma.onrender.com", {
+  withCredentials: true,
+  transports: ["websocket", "polling"]
+});
 
 const OpenTickets = () => {
   const [openTickets, setOpenTickets] = useState([]);
