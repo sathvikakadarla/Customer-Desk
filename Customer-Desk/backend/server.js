@@ -14,21 +14,35 @@ dotenv.config();
 // App configuration
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: 
-  { origin: ["http://localhost:5173", "https://customer-desk-frontend.onrender.com"],
-   methods: ["GET", "POST"],
-  } });
 const port = process.env.PORT || 5000;
 
-// Middleware
+// Allowed frontend origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://customer-desk-frontend.onrender.com"
+];
+
+// CORS middleware (HTTP)
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+// JSON parsing
 app.use(express.json());
-app.use(cors());
 
 // DB connection
 connectDB();
 
 // WebSocket setup
+export const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -45,7 +59,7 @@ io.on("connection", (socket) => {
 app.use("/api/orders", orderRoute);
 app.use("/api/tickets", ticketRoute);
 
-// API endpoint to handle user login
+// Login endpoint
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,10 +82,12 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Base route for testing
+// Base route
 app.get("/", (req, res) => {
   res.send("API Working");
 });
 
-// Server start
-server.listen(port, () => console.log(`Server started on http://localhost:${port}`));
+// Start server
+server.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
