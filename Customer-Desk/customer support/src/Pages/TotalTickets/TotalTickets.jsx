@@ -2,7 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import "./TotalTickets.css";
 
-const socket = io("https://socket1-8bma.onrender.com");
+const socket = io("https://customer-desk-backend.onrender.com"); // <-- FIXED: connect to root, not /api/tickets
+socket.on("connect", () => {
+  console.log("Socket connected with id:", socket.id);
+});
 
 const TotalTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -36,8 +39,9 @@ const TotalTickets = () => {
   useEffect(() => {
     if (!selectedTicket) return;
 
+    console.log(`Joining room for ticket: ${selectedTicket.ticketId}`);
     socket.on("receiveMessage", (data) => {
-      if (data.ticketId === selectedTicket.ticketId) {
+      if (data.roomId === selectedTicket.ticketId) {
         setMessages((prev) => {
           if (prev.some((msg) => msg.text === data.message && msg.sender === data.sender)) {
             return prev;
@@ -51,7 +55,7 @@ const TotalTickets = () => {
     });
 
     return () => {
-      socket.emit("leaveTicket", { ticketId: selectedTicket.ticketId });
+      //socket.emit("leaveTicket", { ticketId: selectedTicket.ticketId });
       socket.off("receiveMessage");
     };
   }, [selectedTicket]);
@@ -65,6 +69,20 @@ const TotalTickets = () => {
   const handleTicketSelect = (ticket) => {
     setSelectedTicket(ticket);
     setIsChatMinimized(false);
+    // Join Socket Room only if ticketId exists
+    if (ticket.ticketId) {
+      socket.emit("joinRoom", { roomId: ticket.ticketId }, (ack) => {
+        if (ack && ack.success) {
+          console.log(`Joined room for ticket: ${ticket.ticketId}`);
+        } else {
+          console.error(`Failed to join room for ticket: ${ticket.ticketId}`);
+          console.log(`Failed to join room for ticket: ${ticket.ticketId}`)
+        }
+      });
+    } else {
+      console.error("Selected ticket does not have a ticketId:", ticket);
+    }
+    console.log("Selected ticket:", ticket.ticketId);
 
     const storedMessages =
       JSON.parse(localStorage.getItem(`chat_${ticket.ticketId}`)) || [
@@ -80,7 +98,7 @@ const TotalTickets = () => {
     if (!newMessage.trim()) return;
 
     const messageData = {
-      ticketId: selectedTicket.ticketId,
+      roomId: selectedTicket.ticketId,
       sender: "support",
       message: newMessage.trim(),
       timestamp: new Date().toISOString(),
