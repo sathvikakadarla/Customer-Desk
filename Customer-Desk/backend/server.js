@@ -14,45 +14,50 @@ dotenv.config();
 // App configuration
 const app = express();
 const server = http.createServer(app);
-const port = process.env.PORT || 5000;
+const io = new Server(server, { cors: { origin: "*" } });
+const port = process.env.PORT || 3000;
 
-// Allowed frontend origins
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://customer-desk-frontend.onrender.com",
-  "https://frontend-31u7.onrender.com"
-];
-
-// CORS middleware (HTTP)
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
-
-// JSON parsing
+// Middleware
 app.use(express.json());
+app.use(cors());
 
 // DB connection
 connectDB();
 
-// WebSocket setup
-export const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
+// WebSocket setup changed//////
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
 
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("sendMessage", (data) => {
-    io.emit("receiveMessage", data);
+  // Join a room (for specific chat)
+  socket.on('joinRoom', ({ roomId }, callback) => {
+    console.log('roomId is:', roomId);
+    // If roomId is defined, join the room
+    if (roomId) {
+      socket.join(roomId);
+      // Get all room IDs except the socket's own ID
+      const joinedRooms = Array.from(socket.rooms).filter(id => id !== socket.id);
+      console.log(`Socket ${socket.id} joined rooms:`, joinedRooms);
+      if (callback) callback({ success: true, rooms: joinedRooms });
+    } else {
+      console.log(`Socket ${socket.id} tried to join undefined room`);
+      if (callback) callback({ success: false });
+    }
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+  // Listen for messages from one client
+  socket.on('sendMessage', ({ roomId, message, sender }) => {
+    console.log('sendMessage event received:', { roomId, message, sender });
+    // Broadcast to others in the same room
+    io.to(roomId).emit('receiveMessage', {
+      roomId, // include roomId in the payload
+      message,
+      sender,
+      timestamp: Date.now()
+    });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
   });
 });
 
@@ -60,7 +65,7 @@ io.on("connection", (socket) => {
 app.use("/api/orders", orderRoute);
 app.use("/api/tickets", ticketRoute);
 
-// Login endpoint
+// API endpoint to handle user login
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -83,12 +88,10 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// Base route
+// Base route for testing
 app.get("/", (req, res) => {
   res.send("API Working");
 });
 
-// Start server
-server.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
+// Server start
+server.listen(port, () => console.log(`Server started on http://localhost:${port}`));
