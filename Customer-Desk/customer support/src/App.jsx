@@ -16,17 +16,22 @@ import WaitingOnCustomer from './Pages/WaitingOnCustomer/WaitingOnCustomer.jsx';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return JSON.parse(localStorage.getItem('isAuthenticated')) || false;
+    const stored = localStorage.getItem('isAuthenticated');
+    return stored === 'true'; // more explicit than JSON.parse
     });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+
 
     useEffect(() => {
         localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated));
     }, [isAuthenticated]);
 
     const handleLogin = () => {
-        setIsAuthenticated(true);
-    };
+    setIsAuthenticated(true);
+  localStorage.setItem('isAuthenticated', 'true');
+};
+
 
     const handleLogout = () => {
         setIsAuthenticated(false);
