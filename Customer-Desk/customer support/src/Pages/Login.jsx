@@ -67,7 +67,7 @@ const Login = ({ onLogin }) => {
       {!showLoginForm && !isLoggedIn && (
         <div className="customer-desk-banner">
           <h2>NoVeg Customer Desk</h2>
-          <img src={icon} alt="NoVeg Logo" className="logo" />
+          { /*<img src={icon} alt="NoVeg Logo" className="logo" /> */}
           <button onClick={handleLoginClick} className="login-btn">Login</button>
         </div>
       )}
