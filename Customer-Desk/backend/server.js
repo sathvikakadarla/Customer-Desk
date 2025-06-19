@@ -15,7 +15,8 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
+
 
 // Middleware
 app.use(express.json());
@@ -36,7 +37,10 @@ io.on("connection", (socket) => {
     if (!ticketRoomRoles[ticketId]) ticketRoomRoles[ticketId] = {};
     ticketRoomRoles[ticketId][socket.id] = role;
     console.log(`Socket ${socket.id} joined room: ${ticketId} as ${role}`);
-    
+    // Optionally, you can log per-room count here
+    const clientsInRoom = io.sockets.adapter.rooms.get(ticketId);
+    const numClients = clientsInRoom ? clientsInRoom.size : 0;
+    console.log(`Ticket room ${ticketId} now has ${numClients} client(s) connected.`);
   });
 
   // Leave a ticket room
@@ -54,34 +58,37 @@ io.on("connection", (socket) => {
   // Send message to a specific ticket room
   socket.on("sendMessage", (data, callback) => {
     console.log("[SOCKET] Message received:", data); // Log incoming message
+    console.log(data.ticketId);
     if (data.ticketId) {
-      // Log number of clients in the room
-      const clientsInRoom = io.sockets.adapter.rooms.get(data.ticketId);
-      const numClients = clientsInRoom ? clientsInRoom.size : 0;
-      console.log(` h ${data.ticketId} ${numClients} client(s) connected.`);
-      const tid= data.ticketId;
-      if (numClients <= 1) {
-        console.log(` 1 sending system message.`)
-        io.to(tid).emit("receiveMessage", {
-        ticketId:tid,
-        sender: "system",
-        message: "Your system message here",
-        timestamp: new Date().toISOString(),
-        role: "system"
-      });
-        if (callback) callback({ status: "ok", message: "System message sent" });
-        return;
+      io.to(data.ticketId).emit("receiveMessage", data);
+      console.log("sent msg");
+      // Use a different variable name to avoid redeclaration
+      const clientsInMsgRoom = io.sockets.adapter.rooms.get(data.ticketId);
+      const msgRoomClients = clientsInMsgRoom ? clientsInMsgRoom.size : 0;
+      if (msgRoomClients === 1) {
+        // Send a system message to the sender to wait
+        socket.emit("receiveMessage", {
+          ticketId: data.ticketId,
+          sender: "system",
+          message: "Please wait until someone join the chat.",
+          timestamp: new Date().toISOString(),
+        });
       }
-      socket.to(data.ticketId).emit("receiveMessage", data);
       if (callback) callback({ status: "ok" });
     }
   });
 
   socket.on("disconnect", () => {
-    // Remove socket from all ticketRoomRoles
+    // Remove socket from all ticketRoomRoles and log left room for each
     for (const ticketId in ticketRoomRoles) {
       if (ticketRoomRoles[ticketId][socket.id]) {
         delete ticketRoomRoles[ticketId][socket.id];
+        console.log(`Socket ${socket.id} left room: ${ticketId}`);
+        setTimeout(() => {
+          const clientsInRoom = io.sockets.adapter.rooms.get(ticketId);
+          const numClients = clientsInRoom ? clientsInRoom.size : 0;
+          console.log(`After disconnect: Ticket room ${ticketId} has ${numClients} client(s) connected.`);
+        }, 0);
       }
     }
     console.log("User disconnected:", socket.id);
