@@ -40,8 +40,9 @@ const CustomerTickets = () => {
   // Listen for incoming messages for any open chatbox
   useEffect(() => {
     const handleReceiveMessage = (data) => {
-      setOpenChats((prev) =>
-        prev.map((chat) =>
+      console.log('[SOCKET][receiveMessage]', data); // Debug: log every received message
+      setOpenChats((prev) => {
+        const updated = prev.map((chat) =>
           chat.ticket.ticketId === data.ticketId
             ? {
                 ...chat,
@@ -51,23 +52,23 @@ const CustomerTickets = () => {
                 ],
               }
             : chat
-        )
-      );
-      // Save to localStorage
-      const chat = openChats.find((c) => c.ticket.ticketId === data.ticketId);
-      if (chat) {
-        const updatedMessages = [
-          ...chat.messages,
-          { sender: data.sender, text: data.message, time: new Date(data.timestamp).toLocaleTimeString() },
-        ];
-        localStorage.setItem(`chat_${data.ticketId}`, JSON.stringify(updatedMessages));
-      }
+        );
+        // Save to localStorage
+        const chat = updated.find((c) => c.ticket.ticketId === data.ticketId);
+        if (chat) {
+          localStorage.setItem(
+            `chat_${data.ticketId}`,
+            JSON.stringify(chat.messages)
+          );
+        }
+        return updated;
+      });
     };
     socket.on("receiveMessage", handleReceiveMessage);
     return () => {
       socket.off("receiveMessage", handleReceiveMessage);
     };
-  }, [openChats]); // Only run once on mount
+  }, []); // Register only once
 
   // Auto-scroll to the latest message
   useEffect(() => {
@@ -111,8 +112,11 @@ const CustomerTickets = () => {
 
   // Close chatbox
   const handleCloseChat = (ticketId) => {
+    console.log('[SOCKET][leaveTicket] Emitting leaveTicket for', ticketId); // Debug log
+    socket.emit("leaveTicket", { ticketId }, (response) => {
+      console.log('[SOCKET][leaveTicket] Server response:', response);
+    });
     setOpenChats((prev) => prev.filter((chat) => chat.ticket.ticketId !== ticketId));
-    socket.emit("leaveTicket", { ticketId });
   };
 
   // Minimize chatbox
@@ -130,16 +134,18 @@ const CustomerTickets = () => {
   const sendMessage = (ticketId) => {
     const chat = openChats.find((c) => c.ticket.ticketId === ticketId);
     if (!chat || !chat.newMessage.trim()) return;
+    // TODO: Set sender/role based on actual user type
     const messageData = {
       ticketId,
-      sender: "support",
+      sender: "support", // Change this to "user" if this is a customer
       message: chat.newMessage.trim(),
       timestamp: new Date().toISOString(),
-      role: "agent",
+      role: "agent", // Change this to "customer" or "user" if this is a customer
     };
+    console.log('[SOCKET][sendMessage]', messageData); // Debug: log every sent message
     socket.emit("sendMessage", messageData, () => {});
     const newMessageObject = {
-      sender: "support",
+      sender: messageData.sender,
       text: chat.newMessage.trim(),
       time: new Date().toLocaleTimeString(),
     };
