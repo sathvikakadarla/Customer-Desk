@@ -2,17 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import "./TotalTickets.css";
 
-const socket = io("https://customer-desk-backend.onrender.com"); // <-- FIXED: connect to root, not /api/tickets
-socket.on("connect", () => {
-  console.log("Socket connected with id:", socket.id);
-});
+const socket = io("https://customer-desk-backend.onrender.com");
 
 const TotalTickets = () => {
   const [tickets, setTickets] = useState([]);
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [openChats, setOpenChats] = useState([]); // [{ticket, messages, newMessage, isChatMinimized}]
   const messagesEndRef = useRef(null);
 
   // Fetch tickets on component mount and sort by LCFS
@@ -35,90 +29,139 @@ const TotalTickets = () => {
     fetchTickets();
   }, []);
 
-  // Handle real-time messaging with Socket.IO
+  // Debug: Log when socket connects
   useEffect(() => {
-    if (!selectedTicket) return;
+    socket.on("connect", () => {
+      console.log("[SOCKET] Connected to server with id:", socket.id);
+    });
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
 
-    console.log(`Joining room for ticket: ${selectedTicket.ticketId}`);
+  // Listen for incoming messages for any open chatbox
+  useEffect(() => {
     socket.on("receiveMessage", (data) => {
-      if (data.roomId === selectedTicket.ticketId) {
-        setMessages((prev) => {
-          if (prev.some((msg) => msg.text === data.message && msg.sender === data.sender)) {
-            return prev;
-          }
-          return [
-            ...prev,
-            { sender: data.sender, text: data.message, time: new Date(data.timestamp).toLocaleTimeString() },
-          ];
-        });
+      setOpenChats((prev) =>
+        prev.map((chat) =>
+          chat.ticket.ticketId === data.ticketId
+            ? {
+                ...chat,
+                messages: [
+                  ...chat.messages,
+                  { sender: data.sender, text: data.message, time: new Date(data.timestamp).toLocaleTimeString() },
+                ],
+              }
+            : chat
+        )
+      );
+      // Save to localStorage
+      const chat = openChats.find((c) => c.ticket.ticketId === data.ticketId);
+      if (chat) {
+        const updatedMessages = [
+          ...chat.messages,
+          { sender: data.sender, text: data.message, time: new Date(data.timestamp).toLocaleTimeString() },
+        ];
+        localStorage.setItem(`chat_${data.ticketId}`, JSON.stringify(updatedMessages));
       }
     });
-
     return () => {
-      //socket.emit("leaveTicket", { ticketId: selectedTicket.ticketId });
       socket.off("receiveMessage");
     };
-  }, [selectedTicket]);
+  }, [openChats]);
 
   // Auto-scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [openChats]);
 
-  // Handle ticket selection and load chat history
+  // Handle opening a chatbox for a ticket
+  const getMaxChats = () => (window.innerWidth <= 900 ? 1 : 2);
+
   const handleTicketSelect = (ticket) => {
-    setSelectedTicket(ticket);
-    setIsChatMinimized(false);
-    // Join Socket Room only if ticketId exists
-    if (ticket.ticketId) {
-      socket.emit("joinRoom", { roomId: ticket.ticketId }, (ack) => {
-        if (ack && ack.success) {
-          console.log(`Joined room for ticket: ${ticket.ticketId}`);
-        } else {
-          console.error(`Failed to join room for ticket: ${ticket.ticketId}`);
-          console.log(`Failed to join room for ticket: ${ticket.ticketId}`)
-        }
-      });
-    } else {
-      console.error("Selected ticket does not have a ticketId:", ticket);
-    }
-    console.log("Selected ticket:", ticket.ticketId);
-
+    // Prevent duplicate chatboxes
+    if (openChats.some((chat) => chat.ticket.ticketId === ticket.ticketId)) return;
+    // Limit to max open chatboxes based on screen size
+    if (openChats.length >= getMaxChats()) return;
+    // Load messages from localStorage if available
     const storedMessages =
       JSON.parse(localStorage.getItem(`chat_${ticket.ticketId}`)) || [
         { sender: "system", text: "You are now connected to the ticket chat." },
         { sender: "system", text: "Waiting for customer to connect..." },
       ];
-
-    setMessages(storedMessages);
+    setOpenChats((prev) => [
+      ...prev,
+      {
+        ticket,
+        messages: storedMessages,
+        newMessage: "",
+        isChatMinimized: false,
+      },
+    ]);
+    // Join the ticket room
+    socket.emit("joinTicket", { ticketId: ticket.ticketId, role: "agent" });
   };
 
-  // Send a new message
-  const sendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const messageData = {
-      roomId: selectedTicket.ticketId,
-      sender: "support",
-      message: newMessage.trim(),
-      timestamp: new Date().toISOString(),
+  // Listen for window resize to update chat limit
+  useEffect(() => {
+    const handleResize = () => {
+      if (getMaxChats() === 1 && openChats.length > 1) {
+        // Keep only the most recently opened chat
+        setOpenChats((prev) => [prev[prev.length - 1]]);
+      }
     };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [openChats]);
 
-    socket.emit("sendMessage", messageData);
+  // Handle closing a chatbox
+  const handleCloseChat = (ticketId) => {
+    setOpenChats((prev) => prev.filter((chat) => chat.ticket.ticketId !== ticketId));
+    socket.emit("leaveTicket", { ticketId });
+  };
 
+  // Handle minimize
+  const handleMinimizeChat = (ticketId) => {
+    setOpenChats((prev) =>
+      prev.map((chat) =>
+        chat.ticket.ticketId === ticketId
+          ? { ...chat, isChatMinimized: !chat.isChatMinimized }
+          : chat
+      )
+    );
+  };
+
+  // Handle sending a message in a chatbox
+  const sendMessage = (ticketId) => {
+    const chat = openChats.find((c) => c.ticket.ticketId === ticketId);
+    if (!chat || !chat.newMessage.trim()) return;
+    const messageData = {
+      ticketId,
+      sender: "support",
+      message: chat.newMessage.trim(),
+      timestamp: new Date().toISOString(),
+      role: "agent",
+    };
+    socket.emit("sendMessage", messageData, () => {});
     const newMessageObject = {
       sender: "support",
-      text: newMessage.trim(),
+      text: chat.newMessage.trim(),
       time: new Date().toLocaleTimeString(),
     };
-
-    setMessages((prev) => {
-      const updatedMessages = [...prev, newMessageObject];
-      localStorage.setItem(`chat_${selectedTicket.ticketId}`, JSON.stringify(updatedMessages));
-      return updatedMessages;
-    });
-
-    setNewMessage("");
+    setOpenChats((prev) =>
+      prev.map((c) =>
+        c.ticket.ticketId === ticketId
+          ? {
+              ...c,
+              messages: [...c.messages, newMessageObject],
+              newMessage: "",
+            }
+          : c
+      )
+    );
+    // Save to localStorage
+    const updatedMessages = [...chat.messages, newMessageObject];
+    localStorage.setItem(`chat_${ticketId}`, JSON.stringify(updatedMessages));
   };
 
   return (
@@ -159,40 +202,56 @@ const TotalTickets = () => {
         </table>
       </div>
 
-      {selectedTicket && (
-        <div className={`chat-box ${isChatMinimized ? "minimized" : ""}`}>
-          <div className="chat-header" onClick={() => setIsChatMinimized(!isChatMinimized)}>
-            <h2>Support Chat - Ticket {selectedTicket.ticketId}</h2>
-            <button className="minimize-chat">{isChatMinimized ? "🔼" : "🔽"}</button>
-            <button className="close-chat" onClick={() => setSelectedTicket(null)}>✖</button>
+      {/* Render chatboxes side by side */}
+      <div className="chatbox-row">
+        {openChats.map((chat) => (
+          <div
+            key={chat.ticket.ticketId}
+            className={`chat-box ${chat.isChatMinimized ? "minimized" : ""}`}
+          >
+            <div className="chat-header" onClick={() => handleMinimizeChat(chat.ticket.ticketId)}>
+              <h2>{chat.ticket.userName} - Ticket {chat.ticket.ticketId}</h2>
+              <button className="minimize-chat">{chat.isChatMinimized ? "🔼" : "🔽"}</button>
+              <button className="close-chat" onClick={() => handleCloseChat(chat.ticket.ticketId)}>✖</button>
+            </div>
+            {!chat.isChatMinimized && (
+              <>
+                <div className="chat-messages">
+                  {chat.messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={`chat-message ${msg.sender === "support" ? "support-message" : "user-message"}`}
+                    >
+                      <strong>{msg.sender}:</strong> {msg.text}
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+                <div className="chat-input-container">
+                  <input
+                    type="text"
+                    placeholder="Type your message..."
+                    value={chat.newMessage}
+                    onChange={(e) =>
+                      setOpenChats((prev) =>
+                        prev.map((c) =>
+                          c.ticket.ticketId === chat.ticket.ticketId
+                            ? { ...c, newMessage: e.target.value }
+                            : c
+                        )
+                      )
+                    }
+                    className="chat-input"
+                  />
+                  <button onClick={() => sendMessage(chat.ticket.ticketId)} className="send-btn">
+                    Send
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-          {!isChatMinimized && (
-            <>
-              <div className="chat-messages">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`chat-message ${msg.sender === "support" ? "support-message" : "user-message"}`}
-                  >
-                    <strong>{msg.sender}:</strong> {msg.text}
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
-              </div>
-              <div className="chat-input-container">
-                <input
-                  type="text"
-                  placeholder="Type your message..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  className="chat-input"
-                />
-                <button onClick={sendMessage} className="send-btn">Send</button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
