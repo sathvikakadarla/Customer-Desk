@@ -38,9 +38,76 @@
     color: #555;
 }
 
+/* 💬 Chatbox Styles */
+.total-tickets-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f4f6fa;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
 
+.chatbox-row {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 16px;
+  align-items: flex-end;
+  margin-top: 0;
+  width: auto;
+  max-width: 100vw;
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+  justify-content: flex-end;
+}
+
+.chat-box {
+  min-width: 350px;
+  max-width: 400px;
+  flex: 1 1 350px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  padding: 0 0 12px 0;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
 
 /* 🌐 Responsive Design */
+@media (max-width: 1200px) {
+  .chatbox-row {
+    flex-wrap: wrap;
+  }
+  .chat-box {
+    min-width: 300px;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 900px) {
+  .chatbox-row {
+    flex-direction: column-reverse;
+    gap: 24px;
+    right: 0;
+    left: 0;
+    width: 100vw;
+    align-items: flex-end;
+    bottom: 0;
+    padding: 0;
+  }
+  .chat-box {
+    min-width: 100vw;
+    max-width: 100vw;
+  }
+}
+
 @media (max-width: 1024px) {
     .total-tickets-container {
         width: 100%;
