@@ -65,7 +65,7 @@ io.on("connection", (socket) => {
       // Use a different variable name to avoid redeclaration
       const clientsInMsgRoom = io.sockets.adapter.rooms.get(data.ticketId);
       const msgRoomClients = clientsInMsgRoom ? clientsInMsgRoom.size : 0;
-      if (msgRoomClients === 1) {
+      if (msgRoomClients == 1) {
         // Send a system message to the sender to wait
         socket.emit("receiveMessage", {
           ticketId: data.ticketId,
