@@ -144,7 +144,7 @@ body {
   background: linear-gradient(135deg, #4e54c8, #8f94fb);
   color: white;
   padding: 12px;
-  border-radius: 16px 16px 0 16px;
+  border-radius: 16px 16px 16px 0;
   max-width: 75%;
   font-size: 14px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
@@ -156,7 +156,7 @@ body {
   background: linear-gradient(135deg, #3dd8e9, #0888b7);
   color: white;
   padding: 12px;
-  border-radius: 16px 16px 16px 0;
+  border-radius: 16px 16px 0 16px;
   max-width: 75%;
   font-size: 14px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
