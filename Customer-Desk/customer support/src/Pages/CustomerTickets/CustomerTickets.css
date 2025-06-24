@@ -140,7 +140,7 @@ body {
 
 /* 🟢 User Messages */
 .user-message {
-  align-self: flex-end;
+  align-self: flex-start;
   background: linear-gradient(135deg, #4e54c8, #8f94fb);
   color: white;
   padding: 12px;
@@ -152,7 +152,7 @@ body {
 
 /* 🔵 Support Messages */
 .support-message {
-  align-self: flex-start;
+  align-self: flex-end;
   background: linear-gradient(135deg, #3dd8e9, #0888b7);
   color: white;
   padding: 12px;
