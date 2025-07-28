@@ -25,10 +25,10 @@ const ClosedTickets = () => {
 
   return (
     <div className="closed-tickets-page">
-      <h2>Closed Tickets</h2>
-      {closedTickets.length > 0 ? (
-        <table className="closed-tickets-table">
-          <thead>
+      <h1>Closed Tickets</h1>
+      <div className="closed-tickets-table">
+        <table>
+          <thead style={{position: 'sticky',top: 0,backgroundColor: 'white',zIndex: 1000,borderRadius: '8px'}}>
             <tr>
               <th>Ticket ID</th>
               <th>Issue</th>
@@ -41,28 +41,28 @@ const ClosedTickets = () => {
             </tr>
           </thead>
           <tbody>
-            {closedTickets.map((ticket) => (
-              <tr key={ticket.ticketId}>
-                <td>{ticket.ticketId}</td>
-                <td>{ticket.issue}</td>
-                <td>{ticket.status}</td>
+        {closedTickets.map((ticket) => (
+          <tr key={ticket.ticketId}>
+            <td>{ticket.ticketId}</td>
+            <td>{ticket.issue}</td>
+            <td>{ticket.status}</td>
                 <td>{ticket.userMessage || "No message provided"}</td>
                 <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                 <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
                 <td>{ticket.userName || "N/A"}</td>
                 <td>{ticket.mobileNumber || "N/A"}</td>
               </tr>
-            ))}
+            ))
+          }
+        {closedTickets.length===0?<tr><td colSpan="8" style={{ textAlign: "center" }}>No closed tickets found.</td></tr>:null}
+
           </tbody>
         </table>
-      ) : (
-        <p>No closed tickets found.</p>
-      )}
-      <Link to="/dashboard" className="back-to-dashboard">
-        Back to Dashboard
-      </Link>
-    </div>
+        </div>
+        <Link to="/dashboard" className="back-to-dashboard">
+          Back to Dashboard
+        </Link>
+      </div>
   );
-};
-
+}
 export default ClosedTickets;
