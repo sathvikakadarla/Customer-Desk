@@ -1,8 +1,35 @@
 // src/pages/Dashboard.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 import './Dashboard.css';
+import PropTypes from 'prop-types';
+
+// Simple toast component
+const Toast = ({ message, onClose }) => (
+  <div style={{
+    position: 'fixed',
+    top: 32,
+    right: 32,
+    background: '#2563eb',
+    color: '#fff',
+    padding: '16px 32px',
+    borderRadius: 8,
+    boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+    zIndex: 9999,
+    fontWeight: 500,
+    fontSize: 18,
+    transition: 'opacity 0.3s',
+  }}>
+    {message}
+    <button onClick={onClose} style={{ marginLeft: 24, background: 'none', color: '#fff', border: 'none', fontSize: 20, cursor: 'pointer' }}>✖</button>
+  </div>
+);
+
+Toast.propTypes = {
+  message: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
 
 const Dashboard = () => {
     const [tickets, setTickets] = useState({
@@ -13,7 +40,6 @@ const Dashboard = () => {
         driverTickets: 0,
         waitingOnCustomerTickets: 0
     });
-    const [searchTerm, setSearchTerm] = useState('');
     const [filteredTickets, setFilteredTickets] = useState({
         totalTickets: 0,
         openTickets: 0,
@@ -22,60 +48,65 @@ const Dashboard = () => {
         driverTickets: 0,
         waitingOnCustomerTickets: 0
     });
+    const [toast, setToast] = useState(null);
+    const prevTotalTickets = useRef(null); // null means "not set yet"
+    const didInitialFetch = useRef(false);
 
     useEffect(() => {
-        const fetchTickets = async () => {
-            try {
-                const response = await fetch("https://customer-desk-backend.onrender.com/api/tickets");
-                const data = await response.json();
-                if (data.success) {
-                    const totalTickets = data.tickets.length;
-                    const openTickets = data.tickets.filter(ticket => ticket.status === "open").length;
-                    const closedTickets = data.tickets.filter(ticket => ticket.status === "closed").length;
-                    const pendingTickets = data.tickets.filter(ticket => ticket.status === "pending").length;
-                    const waitingOnCustomerTickets = data.tickets.filter(ticket => ticket.status === "waiting for response").length;
-                    const driverTickets = data.tickets.filter(ticket => ticket.type === "driver").length;
-                    
-                    const ticketStats = { 
-                        totalTickets, 
-                        openTickets, 
-                        closedTickets, 
-                        pendingTickets, 
-                        driverTickets,
-                        waitingOnCustomerTickets 
-                    };
-                    
-                    setTickets(ticketStats);
-                    setFilteredTickets(ticketStats);
-                }
-            } catch (error) {
-                console.error("Error fetching ticket data:", error);
+      const fetchTickets = async () => {
+        try {
+          const response = await fetch("http://localhost:5002/api/tickets");
+          const data = await response.json();
+          if (data.success) {
+            const totalTickets = data.tickets.length;
+            const openTickets = data.tickets.filter(ticket => ticket.status === "open").length;
+            const closedTickets = data.tickets.filter(ticket => ticket.status === "closed").length;
+            const pendingTickets = data.tickets.filter(ticket => ticket.status === "pending").length;
+            const waitingOnCustomerTickets = data.tickets.filter(ticket => ticket.status === "waiting for response").length;
+            const driverTickets = data.tickets.filter(ticket => ticket.type === "driver").length;
+            
+            const ticketStats = { 
+                totalTickets, 
+                openTickets, 
+                closedTickets, 
+                pendingTickets, 
+                driverTickets,
+                waitingOnCustomerTickets 
+            };
+            setTickets(ticketStats);
+            setFilteredTickets(ticketStats);
+            // Only compare after the first fetch
+            if (didInitialFetch.current && prevTotalTickets.current !== null) {
+              if (totalTickets > prevTotalTickets.current) {
+                setToast("A new ticket has been created!");
+              }
             }
-        };
-        fetchTickets();
+            prevTotalTickets.current = totalTickets;
+            didInitialFetch.current = true;
+          }
+        } catch (error) {
+          console.error("Error fetching ticket data:", error);
+        }
+      };
+      fetchTickets();
+      const interval = setInterval(fetchTickets, 5000);
+      return () => clearInterval(interval);
     }, []);
 
-    const handleSearch = (e) => {
-        const value = e.target.value.toLowerCase();
-        setSearchTerm(value);
-        
-        const filtered = {
-            totalTickets: tickets.totalTickets,
-            openTickets: tickets.openTickets,
-            closedTickets: tickets.closedTickets,
-            pendingTickets: tickets.pendingTickets,
-            driverTickets: tickets.driverTickets,
-            waitingOnCustomerTickets: tickets.waitingOnCustomerTickets
-        };
-        
-        setFilteredTickets(filtered);
-    };
+    // Auto-hide toast after 3 seconds
+    useEffect(() => {
+      if (toast) {
+        const timer = setTimeout(() => setToast(null), 8000);
+        return () => clearTimeout(timer);
+      }
+    }, [toast]);
 
     return (
         <div className="dashboard-container">
+            {toast && <Toast message={toast} onClose={() => setToast(null)} />}
             <h2>Dashboard</h2>
             
-            <div className="ticket-stats">
+            <div className="ticket-stats" style={{display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap'}}>
                 <div className="ticket-row">
                     <Link to="/total-tickets" className="ticket-stat total-tickets">
                         <h3>Total Tickets</h3>
