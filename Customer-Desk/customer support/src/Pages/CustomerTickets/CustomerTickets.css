@@ -1,7 +1,4 @@
-/* General table styling */
-*{
-  
-}
+
 table {
     width: 100%;
     max-width: 1000px;  /* Set a max-width to prevent stretching */
