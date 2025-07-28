@@ -34,4 +34,16 @@ router.put("/:ticketId", async (req, res) => {
   }
 });
 
+// Delete all tickets
+router.delete("/", async (req, res) => {
+  try {
+    await Ticket.deleteMany(); // Delete all tickets from the collection
+    res.status(200).json({ success: true, message: "All tickets deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting tickets:", error);
+    res.status(500).json({ success: false, message: "Server error. Unable to delete tickets." });
+  }
+});
+
+
 export default router;
