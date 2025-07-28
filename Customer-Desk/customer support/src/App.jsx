@@ -13,25 +13,21 @@ import ClosedTickets from './Pages/ClosedTickets/ClosedTickets.jsx';
 import OpenTickets from "./Pages/OpenTickets/OpenTickets.jsx";
 import PendingTickets from './Pages/PendingTickets/PendingTickets.jsx'; // Import PendingTickets component
 import WaitingOnCustomer from './Pages/WaitingOnCustomer/WaitingOnCustomer.jsx'; // Import WaitingOnCustomer
+import DriverTickets from './Pages/DriverTickets/DriverTickets.jsx';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    const stored = localStorage.getItem('isAuthenticated');
-    return stored === 'true'; // more explicit than JSON.parse
+        return JSON.parse(localStorage.getItem('isAuthenticated')) || false;
     });
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-
 
     useEffect(() => {
         localStorage.setItem('isAuthenticated', JSON.stringify(isAuthenticated));
     }, [isAuthenticated]);
 
     const handleLogin = () => {
-    setIsAuthenticated(true);
-  localStorage.setItem('isAuthenticated', 'true');
-};
-
+        setIsAuthenticated(true);
+    };
 
     const handleLogout = () => {
         setIsAuthenticated(false);
@@ -68,7 +64,8 @@ function App() {
                         <Route path="/open-tickets" element={ isAuthenticated ? <OpenTickets /> : <Navigate to="/login" />} />
                         <Route path="/pending-tickets" element={isAuthenticated ? <PendingTickets /> : <Navigate to="/login" />} />
                         <Route path="/waiting-on-customer" element={isAuthenticated ? <WaitingOnCustomer /> : <Navigate to="/login" />} />
-                        
+                        <Route path="/driver-tickets" element={isAuthenticated ? <DriverTickets /> : <Navigate to="/login" />} />
+
             
                     </Routes>
                 </div>
