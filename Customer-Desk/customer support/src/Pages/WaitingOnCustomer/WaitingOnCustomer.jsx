@@ -27,7 +27,7 @@ const WaitingOnCustomer = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get("http://localhost:5002/api/tickets");
+        const response = await axios.get("https://customer-desk-backend.onrender.com/api/tickets");
         if (response.data.success) {
           const waitingTickets = response.data.tickets
             .filter((ticket) => ticket.status === "waiting for response")
