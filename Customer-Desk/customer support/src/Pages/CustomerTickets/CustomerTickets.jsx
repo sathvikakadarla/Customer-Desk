@@ -25,7 +25,7 @@ const CustomerTickets = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await axios.get("http://localhost:5002/api/tickets");
+        const response = await axios.get("https://customer-desk-backend.onrender.com/api/tickets");
         if (response.data.success) {
           const sortedTickets = response.data.tickets.sort((a, b) =>
             new Date(b.createdAt) - new Date(a.createdAt)
@@ -222,7 +222,7 @@ const CustomerTickets = () => {
       return updatedTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     });
     try {
-      const response = await axios.put(`http://localhost:5002/api/tickets/${ticketId}`, { status: newStatus });
+      const response = await axios.put(`https://customer-desk-backend.onrender.com/api/tickets/${ticketId}`, { status: newStatus });
       if (response.data.success) {
         // Optionally, update again with backend response if needed
       }
