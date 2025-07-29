@@ -25,7 +25,7 @@ const OpenTickets = () => {
   useEffect(() => {
     const fetchOpenTickets = async () => {
       try {
-        const response = await fetch("http://localhost:5002/api/tickets");
+        const response = await fetch("https://customer-desk-backend.onrender.com/api/tickets");
         const data = await response.json();
         if (data.success) {
           const filteredOpenTickets = data.tickets
