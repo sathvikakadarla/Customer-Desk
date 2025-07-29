@@ -25,7 +25,7 @@ const PendingTickets = () => {
   useEffect(() => {
     const fetchPendingTickets = async () => {
       try {
-        const response = await axios.get("http://localhost:5002/api/tickets");
+        const response = await axios.get("https://customer-desk-backend.onrender.com/api/tickets");
         if (response.data.success) {
           const pending = response.data.tickets
             .filter((ticket) => ticket.status === "pending")
@@ -159,7 +159,7 @@ const PendingTickets = () => {
   const closeTicket = async (ticketId) => {
     if (!window.confirm("Are you sure you want to close this ticket?")) return;
     try {
-      const response = await fetch(`http://localhost:5002/api/tickets/${ticketId}`, {
+      const response = await fetch(`https://customer-desk-backend.onrender.com/api/tickets/${ticketId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "closed" }),
