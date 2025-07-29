@@ -1,3 +1,5 @@
+
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Customers.css";
@@ -6,19 +8,16 @@ import { useSearchParams } from "react-router-dom";
 const Customer = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState("");
+  const [filterStatus, setFilterStatus] = useState(""); // For filtering orders
   const [search, setSearch] = useSearchParams();
-
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("https://customer-desk-frontend.onrender.com/api/orders");
-        console.log("API response:", response?.data);
-
-        if (response?.data?.success && Array.isArray(response.data.data)) {
+        const response = await axios.get("https://customer-desk-backend.onrender.com/api/orders");
+        if (response.data.success) {
           setOrders(response.data.data);
         } else {
-          console.error("Unexpected API format:", response.data);
+          console.error(response.data.message);
         }
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -29,21 +28,24 @@ const Customer = () => {
 
     fetchOrders();
   }, []);
-
-  const filterOrders = (key, value) => {
-    const params = new URLSearchParams(search);
-    if (value) {
-      params.set(key, value);
-      setFilterStatus(value);
-    } else {
+  function filterOrders(key,value){
+    const params=new URLSearchParams(search);
+    if(value){
+      params.set(key,value);
+      setFilterStatus(value)
+    }else{
       params.delete(key);
-      setFilterStatus("");
+      setFilterStatus("")
     }
     setSearch(params);
-  };
+  }
+
+  useEffect(() => {
+    console.log(orders);
+  }, [orders]);
 
   const filteredOrders = filterStatus
-    ? orders.filter((order) => order.status === filterStatus)
+    ? orders.filter((order) => order.status=== filterStatus)
     : orders;
 
   if (loading) {
@@ -57,10 +59,25 @@ const Customer = () => {
         <p>No orders found.</p>
       ) : (
         <div>
-          {/* Filter Dropdown */}
+          {/* Filter indicator at the top */}
+          {filterStatus && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              marginTop: 16,
+              padding: '10px 0',
+              width: '100%',
+              maxWidth: '1450px',
+              marginLeft: '80px',
+            }}>
+            </div>
+          )}
+          {/* Filter Bar */}
           <div className="filter-container" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'flex-end' }}>
-            <label htmlFor="status" style={{ fontWeight: 500 }}>Status:</label>
+            <label htmlFor="status" style={{ fontWeight: 500, marginRight: 8 }}>Status:</label>
             <select
+              name="status"
               id="status"
               value={filterStatus}
               onChange={(e) => filterOrders("status", e.target.value)}
@@ -75,6 +92,7 @@ const Customer = () => {
                 boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 cursor: 'pointer',
                 minWidth: 180,
+                transition: 'border-color 0.2s',
               }}
             >
               <option value="">All</option>
@@ -84,7 +102,7 @@ const Customer = () => {
             </select>
           </div>
 
-          {/* Scrollable Table */}
+          {/* Table */}
           <div style={{
             width: '100%',
             maxWidth: '1450px',
@@ -117,18 +135,18 @@ const Customer = () => {
                 {filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => (
                     <tr key={order._id}>
-                      <td data-label="First Name">{order.address?.firstName || '-'}</td>
-                      <td data-label="Last Name">{order.address?.lastName || '-'}</td>
-                      <td data-label="Email">{order.address?.email || '-'}</td>
-                      <td data-label="Street">{order.address?.street || '-'}</td>
-                      <td data-label="City">{order.address?.city || '-'}</td>
-                      <td data-label="State">{order.address?.state || '-'}</td>
-                      <td data-label="Zipcode">{order.address?.zipcode || '-'}</td>
-                      <td data-label="Country">{order.address?.country || '-'}</td>
-                      <td data-label="Phone">{order.address?.phone || '-'}</td>
-                      <td data-label="Order ID">{order.orderId || '-'}</td>
-                      <td data-label="Status">{order.status || '-'}</td>
-                      <td data-label="Amount">₹{order.amount || 0}</td>
+                      <td data-label="First Name">{order.address.firstName}</td>
+                      <td data-label="Last Name">{order.address.lastName}</td>
+                      <td data-label="Email">{order.address.email}</td>
+                      <td data-label="Street">{order.address.street}</td>
+                      <td data-label="City">{order.address.city}</td>
+                      <td data-label="State">{order.address.state}</td>
+                      <td data-label="Zipcode">{order.address.zipcode}</td>
+                      <td data-label="Country">{order.address.country}</td>
+                      <td data-label="Phone">{order.address.phone}</td>
+                      <td data-label="Order ID">{order.orderId}</td>
+                      <td data-label="Status">{order.status}</td>
+                      <td data-label="Amount">₹{order.amount}</td>
                     </tr>
                   ))
                 ) : (
