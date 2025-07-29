@@ -268,7 +268,7 @@ const TotalTickets = () => {
   const closeTicket = async (ticketId) => {
     if (!window.confirm("Are you sure you want to end this chat?")) return;
     try {
-      const response = await fetch(`http://localhost:5002/api/tickets/${ticketId}`, {
+      const response = await fetch(`https://customer-desk-backend.onrender.com/api/tickets/${ticketId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "closed" }),
