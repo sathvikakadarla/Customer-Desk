@@ -15,6 +15,7 @@ body {
     left: -18px; /* Positioned at the left edge of the viewport */
     height: 82%; /* Full height */
     top: 58px; /* Start from the top */
+    z-index: 2000;
 }
 
 .sidebar h2 {
