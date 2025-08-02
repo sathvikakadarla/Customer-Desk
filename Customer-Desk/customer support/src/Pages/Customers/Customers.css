@@ -129,7 +129,17 @@ table {
     z-index: 1000;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+  .total-tickets-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    background: white;
+    border-radius: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
   .dropdown-menu li {
     padding: 0.5rem 1rem;
     cursor: pointer;
@@ -221,5 +231,491 @@ table {
   }
   table {
     font-size: 12px;
+  }
+}
+/* 🌟 Global Styles */
+html {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #dde8f0, #f3f6fa);
+  color: #333;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* 🎟️ Total Tickets Page Container */
+.total-tickets-page {
+  margin: 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Use min-height to allow content to extend */
+  width: 100vw;
+}
+.total-tickets-page h1 {
+  text-align: center;
+  font-size: 28px;
+  color: #2a5298;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+.total-tickets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden; /* Ensures rounded corners apply to content */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* Apply shadow directly to table container */
+  max-width: 100%;
+}
+.total-tickets-table table { /* Style the actual table element */
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.total-tickets-table th,
+.total-tickets-table td {
+  padding: 8px 4px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08); /* Lighter border */
+  word-break: break-word; /* Ensure long text breaks */
+  vertical-align: top; /* Ensure text aligns to top */
+  white-space: normal; /* Allow text to wrap */
+}
+
+.total-tickets-table thead th {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* Ensure header stays on top */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for sticky header */
+}
+
+.total-tickets-table tbody tr:hover {
+  background-color: #f5f5f5; /* Hover effect for rows */
+}
+
+.total-tickets-table td {
+  color: #555;
+  line-height: 1.4; /* Better line height for readability */
+}
+
+.total-tickets-table th {
+  font-size: 13px; /* Consistent font size for headers */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.action-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.action-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+.action-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 12px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: #fff;
+  text-transform: capitalize;
+  margin: 0 2px;
+  letter-spacing: 0.5px;
+}
+.status-open {
+  background: #1976d2;
+}
+.status-pending {
+  background: #ff9800;
+}
+.status-waiting-for-response {
+  background: #8e24aa;
+}
+.status-closed {
+  background: #757575;
+}
+.status-delivered {
+  background: #4caf50;
+}
+.status-out-for-delivery {
+  background: #ff9800;
+}
+.status-food-processing {
+  background: #2196f3;
+}
+
+/* Back to Dashboard Button */
+.back-to-dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: #fff;
+  text-decoration: none;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease-in-out;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  width: max-content;
+}
+.back-to-dashboard:hover {
+  background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* 💬 Chat Box Styles (Refined) */
+.chat-box {
+  background: #f9fbfd;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(44, 62, 80, 0.2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e3e8f0;
+  position: fixed;
+  max-width: 380px;
+  min-width: 300px;
+  height: 550px;
+  z-index: 3000;
+  transition: box-shadow 0.2s, border 0.2s, height 0.3s ease-in-out;
+}
+
+.chat-box.minimized {
+  height: 50px;
+  overflow: hidden;
+}
+
+.chat-box .chat-header {
+  background: linear-gradient(135deg, #2a5298 80%, #1e3c72 100%);
+  color: white;
+  padding: 15px 20px;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  cursor: grab;
+}
+
+.chat-box .chat-header.dragging {
+  cursor: grabbing;
+}
+
+.chat-box .chat-header h2 {
+  margin: 0;
+  font-size: 1.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.chat-box .header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-box .header-buttons button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.chat-box .header-buttons button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.chat-box .end-chat-btn {
+  background: #ff4757;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.85em;
+  font-weight: 500;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.chat-box .end-chat-btn:hover {
+  background: #e03847;
+}
+
+.chat-box .end-chat-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.chat-box .close-chat {
+  font-size: 1.4em;
+  font-weight: bold;
+}
+
+.chat-box .closed-status {
+  background: #757575;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chat-box .chat-messages {
+  padding: 15px 18px;
+  height: 380px;
+  overflow-y: auto;
+  background: #f7f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: #a7b7c9 #f7f9fa;
+}
+
+.chat-box .chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-box .chat-messages::-webkit-scrollbar-thumb {
+  background-color: #a7b7c9;
+  border-radius: 3px;
+}
+.chat-box .chat-messages::-webkit-scrollbar-track {
+  background: #f7f9fa;
+}
+
+
+.chat-box .chat-message {
+  max-width: 85%;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.chat-box .support-message {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #2a5298 70%, #1e3c72 100%);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+}
+
+.chat-box .user-message {
+  align-self: flex-start;
+  background: #e9eef6;
+  color: #222;
+  border-bottom-left-radius: 5px;
+}
+
+.chat-box .message-timestamp {
+  font-size: 0.75em;
+  color: #8fa1b7;
+  margin-top: 4px;
+  text-align: right;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+.chat-box .user-message .message-timestamp {
+    text-align: left;
+    align-self: flex-start;
+}
+
+.chat-box .chat-input-container {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  border-top: 1px solid #e0e0e0;
+  background: #f9fbfd;
+  border-bottom-left-radius: 18px;
+  border-bottom-right-radius: 18px;
+  gap: 10px;
+  box-shadow: 0 -2px 8px rgba(44, 62, 80, 0.03);
+}
+
+.chat-box .chat-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #cfd8dc;
+  font-size: 0.95rem;
+  outline: none;
+  background: #fff;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.chat-box .chat-input:focus {
+  border: 1px solid #2a5298;
+  box-shadow: 0 0 0 3px rgba(42,82,152,0.2);
+}
+
+.chat-box .chat-input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.chat-box .send-btn {
+  background: linear-gradient(135deg, #2a5298 70%, #1e3c72 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.10);
+}
+.chat-box .send-btn:active {
+  transform: scale(0.96);
+}
+.chat-box .send-btn:hover {
+  background: linear-gradient(135deg, #1e3c72 70%, #2a5298 100%);
+  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.15);
+}
+.chat-box .send-btn:disabled {
+  background: #b0c2d7;
+  cursor: not-allowed;
+  opacity: 0.8;
+  box-shadow: none;
+}
+
+
+/* 🌐 Responsive Design for Chat Box */
+@media (max-width: 768px) {
+  .chat-box {
+    width: 96vw !important;
+    max-width: none;
+    left: 2vw !important;
+    right: 2vw !important;
+    bottom: 10px;
+    top: 10px;
+    height: auto !important;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  }
+
+  .chat-box.minimized {
+    height: 50px;
+    bottom: 10px;
+    width: 200px !important;
+    left: auto !important;
+    right: 10px !important;
+  }
+
+  .chat-box .chat-header {
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .chat-box .header-buttons {
+    gap: 5px;
+  }
+  
+  .chat-box .header-buttons button {
+    font-size: 1.1em;
+    padding: 3px;
+  }
+
+  .chat-box .end-chat-btn {
+    padding: 4px 8px;
+    font-size: 0.75em;
+    border-radius: 12px;
+  }
+
+  .chat-box .close-chat {
+    font-size: 1.2em;
+  }
+
+  .chat-box .chat-messages {
+    padding: 10px;
+    height: calc(100vh - 160px);
+    gap: 8px;
+  }
+
+  .chat-box .chat-message {
+    max-width: 95%;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  .chat-box .chat-input-container {
+    padding: 8px 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    gap: 8px;
+  }
+
+  .chat-box .chat-input {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  .chat-box .send-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .chat-box .message-timestamp {
+      font-size: 0.7em;
   }
 }
