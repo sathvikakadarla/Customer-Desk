@@ -24,20 +24,33 @@ const ClosedTickets = () => {
   }, []);
 
   return (
-    <div className="closed-tickets-page">
+    <div>
+    <div className="total-tickets-page">
+      <div
+        style={{
+          position: "absolute",
+          top: "16px",
+          left: "24px",
+          zIndex: 1100,
+        }}
+      >
+        <Link to="/dashboard" className="back-to-dashboard">
+          ← Back
+        </Link>
+      </div>
       <h1>Closed Tickets</h1>
-      <div className="closed-tickets-table">
+      <div className="total-tickets-table">
         <table>
-          <thead style={{position: 'sticky',top: 0,backgroundColor: 'white',zIndex: 1000,borderRadius: '8px'}}>
+          <thead style={{ position: "sticky", top: 0, backgroundColor: "white", zIndex: 1000 }}>
             <tr>
-              <th>Ticket ID</th>
-              <th>Issue</th>
-              <th>Status</th>
-              <th>User Message</th>
-              <th>Created At</th>
-              <th>Updated At</th>
-              <th>User</th>
-              <th>Mobile Number</th>
+            <th style={{ minWidth: "140px" }}>Ticket ID</th>
+                <th style={{ minWidth: "150px" }}>Issue</th>
+                <th style={{ minWidth: "150px" }}>Sub Issue</th>
+                <th style={{ minWidth: "100px" }}>Status</th>
+                <th style={{ minWidth: "100px" }}>Created At</th>
+                <th style={{ minWidth: "100px" }}>Updated At</th>
+                <th style={{ minWidth: "150px" }}>Name</th>
+                <th style={{ minWidth: "150px" }}>Number</th>
             </tr>
           </thead>
           <tbody>
@@ -45,8 +58,8 @@ const ClosedTickets = () => {
           <tr key={ticket.ticketId}>
             <td>{ticket.ticketId}</td>
             <td>{ticket.issue}</td>
-            <td>{ticket.status}</td>
                 <td>{ticket.userMessage || "No message provided"}</td>
+            <td>{ticket.status}</td>
                 <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                 <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
                 <td>{ticket.userName || "N/A"}</td>
@@ -58,10 +71,8 @@ const ClosedTickets = () => {
 
           </tbody>
         </table>
-        </div>
-        <Link to="/dashboard" className="back-to-dashboard">
-          Back to Dashboard
-        </Link>
+      </div>
+      </div>
       </div>
   );
 }
