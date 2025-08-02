@@ -20,8 +20,8 @@ const Navbar = ({ isAuthenticated, toggleSidebar }) => {
 
   return (
     <div className="header">
-      <a href="/" className="NVlogo">
-        <img src={assets.noveglogo} alt="NVLogo" className="NVlogo" />
+      <a href="/" className="logo">
+        <img src={assets.noveglogo} alt="Logo" className="logo" />
       </a>
       <p className="navbar-title">NoVeg Customer Desk</p>
       <div className="navbar-right">
