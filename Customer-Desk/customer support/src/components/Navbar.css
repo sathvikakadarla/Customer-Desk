@@ -9,10 +9,10 @@
   display: flex;
   justify-content: space-between; 
   align-items: center;
-  z-index: 100;
+  z-index: 10000000;
 }
 
-.NVlogo {
+.logo {
   font-size: 32px;
   color: #333;
   font-weight: 500;
