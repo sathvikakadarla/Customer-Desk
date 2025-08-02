@@ -30,6 +30,7 @@
     text-align: center;
     text-decoration: none;
     color: #333;
+    width: 200px;
 }
 
 .ticket-stat h3 {
@@ -47,12 +48,10 @@
 
 .total-tickets {
     background-color: #4CAF50; /* Green */
-    width: 70%;
 }
 
 .open-tickets {
     background-color: #2196F3; /* Blue */
-    width: 70%;
 }
 
 .closed-tickets {
