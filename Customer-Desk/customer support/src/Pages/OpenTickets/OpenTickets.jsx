@@ -322,7 +322,7 @@ const OpenTickets = () => {
   const closeTicket = async (ticketId) => {
     if (!window.confirm("Are you sure you want to close this ticket?")) return;
     try {
-      const response = await fetch(`http://localhost:5002/api/tickets/${ticketId}`, {
+      const response = await fetch(`https://customer-desk-backend.onrender.com/api/tickets/${ticketId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "closed" }),
@@ -370,23 +370,42 @@ const OpenTickets = () => {
 
   return (
     <div>
-      <div className="open-tickets-container">
-        <h1>Open Tickets</h1>
-        <div className="ticket-table">
+    <div className="total-tickets-page">
+      <div
+        style={{
+          position: "absolute",
+          top: "16px",
+          left: "24px",
+          zIndex: 1100,
+        }}
+      >
+        <Link to="/dashboard" className="back-to-dashboard">
+          ← Back
+        </Link>
+      </div>
+      <h1>Open Tickets</h1>
+      <div className="total-tickets-table">
         <table>
-          <thead style={{position: 'sticky',top: 0,backgroundColor: 'white',zIndex: 1000}}>
+          <thead style={{ position: "sticky", top: 0, backgroundColor: "white", zIndex: 1000 }}>
             <tr>
-              <th>Ticket ID</th>
-              <th>Issue</th>
-              <th>Status</th>
-              <th>User Message</th>
-              <th>Created At</th>
-              <th>Updated At</th>
-              <th>User Name</th>
-              <th>Mobile Number</th>
+            <th style={{ minWidth: "140px" }}>Ticket ID</th>
+                <th style={{ minWidth: "150px" }}>Issue</th>
+                <th style={{ minWidth: "150px" }}>Sub Issue</th>
+                <th style={{ minWidth: "100px" }}>Status</th>
+                <th style={{ minWidth: "100px" }}>Created At</th>
+                <th style={{ minWidth: "100px" }}>Updated At</th>
+                <th style={{ minWidth: "150px" }}>Name</th>
+                <th style={{ minWidth: "150px" }}>Number</th>
             </tr>
           </thead>
           <tbody>
+            {openTickets.length === 0 && (
+              <tr>
+                <td colSpan={8} style={{ textAlign: "center", padding: "20px" }}>
+                  No tickets found
+                </td>
+              </tr>
+            )}
             {openTickets.map((ticket) => (
               <tr key={ticket.ticketId}>
                 <td>
@@ -395,129 +414,137 @@ const OpenTickets = () => {
                   </button>
                 </td>
                 <td>{ticket.issue}</td>
+                <td>{ticket.subissue || "No message provided"}</td>
                 <td>{ticket.status}</td>
-                <td>{ticket.userMessage || "No message provided"}</td>
                 <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                 <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
                 <td>{ticket.userName || "N/A"}</td>
                 <td>{ticket.mobileNumber || "N/A"}</td>
               </tr>
             ))}
-            {openTickets.length===0?<tr><td colSpan="8" style={{ textAlign: "center" }}>No open tickets found.</td></tr>:null}
           </tbody>
         </table>
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '24px 0',position: 'fixed',bottom: '24px',right: '680px' }}>
-          <Link to="/dashboard" className="back-button">Back to Dashboard</Link>
-        </div>
-            </div>
       </div>
-      {selectedTickets.map((ticket, idx) => {
-        const chatState = chatboxStates[ticket.ticketId] || defaultChatboxState();
-        const chatboxWidth = 500;
-        const minWidth = 500;
-        const maxWidth = 500;
-        const { left, top } = chatState.position || {};
-        return (
-          <div
-            key={ticket.ticketId}
-            className={`chat-box${chatState.isChatMinimized ? " minimized" : ""}`}
-            style={{
-              position: "fixed",
-              left: left ?? (window.innerWidth - 24 - (chatboxWidth + 16) * idx - chatboxWidth),
-              top: top ?? 100,
-              width: chatboxWidth,
-              minWidth,
-              maxWidth,
-              boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-              background: "#fff",
-              borderRadius: 12,
-              zIndex: 2000 + idx,
-              cursor: chatState.dragging ? "grabbing" : "default",
-              userSelect: chatState.dragging ? "none" : "auto",
-              transition: chatState.dragging ? "none" : "box-shadow 0.2s",
-            }}
-            onMouseMove={chatState.dragging ? (e) => handleDrag(ticket.ticketId, e) : undefined}
-            onMouseUp={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
-            onMouseLeave={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
-            onTouchMove={chatState.dragging ? (e) => handleDrag(ticket.ticketId, e) : undefined}
-            onTouchEnd={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
-          >
-            <div
-              className="chat-header"
-              style={{ cursor: "grab" }}
-              onMouseDown={(e) => handleDragStart(ticket.ticketId, e)}
-              onTouchStart={(e) => handleDragStart(ticket.ticketId, e)}
-            >
-              <h2>Support Chat- Ticket {ticket.ticketId}</h2>
-              <button className="minimize-chat" onClick={() => toggleMinimize(ticket.ticketId)}>{chatState.isChatMinimized ? "🔼" : "🔽"}</button>
-              <button className="close-ticket-btn" onClick={() => closeTicket(ticket.ticketId)} title="End Chat">
-                💬 End Chat
-              </button>
-              <button className="close-chat" onClick={() => closeChatbox(ticket.ticketId)}>
-                ✖
-              </button>
-            </div>
-            {!chatState.isChatMinimized && (
-              <>
-                <div className="chat-messages">
-                  {chatState.messages.map((msg, index) => {
-                    const isSupport = msg.sender === "support";
-                    const senderName = isSupport ? "Support" : ticket.userName || msg.sender;
-                    return (
-                      <div
-                        key={index}
-                        className={`chat-message ${isSupport ? "support-message" : "user-message"}`}
-                      >
-                        <span style={{ fontWeight: 600, fontSize: '1em' }}>{senderName}</span>
-                        <span style={{ display: 'block', marginTop: 2 }}>{msg.text}</span>
-                        <span
-                          className="message-timestamp"
-                          style={{
-                            marginTop: 6,
-                            textAlign: isSupport ? 'right' : 'left',
-                            alignSelf: isSupport ? 'flex-end' : 'flex-start',
-                            width: '100%',
-                            fontSize: '0.82em',
-                            color: '#8fa1b7',
-                          }}
-                        >
-                          {msg.time}
-                        </span>
-                      </div>
-                    );
-                  })}
-                  <div ref={(el) => (messagesEndRefs.current[ticket.ticketId] = el)} />
-                </div>
-                <div className="chat-input-container">
-                  <input
-                    type="text"
-                    placeholder={ticket.status === "closed" ? "Ticket is closed. You cannot send messages." : "Type your message..."}
-                    value={chatState.newMessage}
-                    onChange={(e) => handleInputChange(ticket.ticketId, e.target.value)}
-                    className="chat-input"
-                    disabled={ticket.status === "closed"}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && chatState.newMessage.trim() && ticket.status !== 'closed') {
-                        e.preventDefault();
-                        sendMessage(ticket.ticketId);
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={() => sendMessage(ticket.ticketId)}
-                    className="send-btn"
-                    disabled={ticket.status === "closed" || !chatState.newMessage.trim()}
-                  >
-                    ➤
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        );
-      })}
     </div>
-  );
+
+    {selectedTickets.map((ticket, idx) => {
+      const chatState = chatboxStates[ticket.ticketId] || defaultChatboxState();
+      const chatboxWidth = 500;
+      const { left, top } = chatState.position || {};
+
+      return (
+        <div
+          key={ticket.ticketId}
+          className={`chat-box${chatState.isChatMinimized ? " minimized" : ""}`}
+          style={{
+            position: "fixed",
+            left: left ?? (window.innerWidth - 24 - (chatboxWidth + 16) * idx - chatboxWidth),
+            top: top ?? (window.innerHeight - 24 - 420),
+            width: chatboxWidth,
+            boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+            background: "#fff",
+            borderRadius: 12,
+            zIndex: 2000 + idx,
+            cursor: chatState.dragging ? "grabbing" : "default",
+            userSelect: chatState.dragging ? "none" : "auto",
+            transition: chatState.dragging ? "none" : "box-shadow 0.2s",
+          }}
+          onMouseMove={chatState.dragging ? (e) => handleDrag(ticket.ticketId, e) : undefined}
+          onMouseUp={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
+          onMouseLeave={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
+          onTouchMove={chatState.dragging ? (e) => handleDrag(ticket.ticketId, e) : undefined}
+          onTouchEnd={chatState.dragging ? () => handleDragEnd(ticket.ticketId) : undefined}
+        >
+          <div
+            className="chat-header"
+            style={{ cursor: "grab" }}
+            onMouseDown={(e) => handleDragStart(ticket.ticketId, e)}
+            onTouchStart={(e) => handleDragStart(ticket.ticketId, e)}
+          >
+            <h2>Support Chat - Ticket {ticket.ticketId}</h2>
+            <button className="minimize-chat" onClick={() => toggleMinimize(ticket.ticketId)}>
+              {chatState.isChatMinimized ? "🔼" : "🔽"}
+            </button>
+            <div className="chat-header">
+              {ticket.status === "closed" ? (
+                <span className="closed-status">🔒 Closed</span>
+              ) : (
+                <button
+                  onClick={() => closeTicket(ticket.ticketId)}
+                  className="close-ticket-btn"
+                >
+                  💬 End Chat
+                </button>
+              )}
+            </div>
+            <button className="close-chat" onClick={() => closeChatbox(ticket.ticketId)}>
+              ✖
+            </button>
+          </div>
+          {!chatState.isChatMinimized && (
+            <>
+              <div className="chat-messages">
+                {chatState.messages.map((msg, index) => {
+                  const isSupport = msg.sender === "support";
+                  let senderName = isSupport ? "Support" : ticket.userName || msg?.sender || "N/A";
+                  if (msg.text && msg.text.trim() === "Please wait until someone join the chat.") {
+                    senderName = "🤖 Bot";
+                  }
+                  return (
+                    <div
+                      key={index}
+                      className={`chat-message ${isSupport ? "support-message" : "user-message"}`}
+                    >
+                      <span style={{ fontWeight: 600, fontSize: '1em' }}>{senderName}</span>
+                      <span style={{ display: 'block', marginTop: 2 }}>{msg.text}</span>
+                      <span
+                        className="message-timestamp"
+                        style={{
+                          marginTop: 6,
+                          textAlign: isSupport ? 'right' : 'left',
+                          alignSelf: isSupport ? 'flex-end' : 'flex-start',
+                          width: '100%',
+                          fontSize: '0.82em',
+                          color: '#8fa1b7',
+                        }}
+                      >
+                        {msg.time}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div ref={(el) => (messagesEndRefs.current[ticket.ticketId] = el)} />
+              </div>
+              <div className="chat-input-container">
+                <input
+                  type="text"
+                  placeholder={ticket.status === "closed" ? "Ticket is closed. You cannot send messages." : "Type your message..."}
+                  value={chatState.newMessage}
+                  onChange={(e) => handleInputChange(ticket.ticketId, e.target.value)}
+                  className="chat-input"
+                  disabled={ticket.status === "closed"}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && chatState.newMessage.trim() && ticket.status !== 'closed') {
+                      e.preventDefault();
+                      sendMessage(ticket.ticketId);
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => sendMessage(ticket.ticketId)}
+                  className="send-btn"
+                  disabled={ticket.status === "closed" || !chatState.newMessage.trim()}
+                >
+                  ➤
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      );
+    })}
+  </div>
+);
 };
 
 export default OpenTickets;
