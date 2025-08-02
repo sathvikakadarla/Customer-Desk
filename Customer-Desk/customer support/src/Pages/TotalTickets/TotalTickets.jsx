@@ -316,22 +316,41 @@ const TotalTickets = () => {
   return (
     <div>
       <div className="total-tickets-page">
+        <div
+          style={{
+            position: "absolute",
+            top: "16px",
+            left: "24px",
+            zIndex: 1100,
+          }}
+        >
+          <Link to="/dashboard" className="back-to-dashboard">
+            ← Back
+          </Link>
+        </div>
         <h1>Total Tickets</h1>
         <div className="total-tickets-table">
           <table>
             <thead style={{ position: "sticky", top: 0, backgroundColor: "white", zIndex: 1000 }}>
               <tr>
-                <th>Ticket ID</th>
-                <th>Issue</th>
-                <th>Status</th>
-                <th>User Message</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th>Name</th>
-                <th>Number</th>
+                <th style={{ minWidth: "140px" }}>Ticket ID</th>
+                <th style={{ minWidth: "150px" }}>Issue</th>
+                <th style={{ minWidth: "150px" }}>Sub Issue</th>
+                <th style={{ minWidth: "100px" }}>Status</th>
+                <th style={{ minWidth: "100px" }}>Created At</th>
+                <th style={{ minWidth: "100px" }}>Updated At</th>
+                <th style={{ minWidth: "150px" }}>Name</th>
+                <th style={{ minWidth: "150px" }}>Number</th>
               </tr>
             </thead>
             <tbody>
+              {tickets.length === 0 && (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: "center", padding: "20px" }}>
+                    No tickets found
+                  </td>
+                </tr>
+              )}
               {tickets.map((ticket) => (
                 <tr key={ticket.ticketId}>
                   <td>
@@ -340,8 +359,8 @@ const TotalTickets = () => {
                     </button>
                   </td>
                   <td>{ticket.issue}</td>
+                  <td>{ticket.subissue || "No message provided"}</td>
                   <td>{ticket.status}</td>
-                  <td>{ticket.userMessage || "No message provided"}</td>
                   <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                   <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
                   <td>{ticket.userName || "N/A"}</td>
@@ -469,21 +488,6 @@ const TotalTickets = () => {
           </div>
         );
       })}
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          margin: "24px 0",
-          position: "fixed",
-          bottom: "24px",
-          right: "680px",
-        }}
-      >
-        <Link to="/dashboard" className="back-button">
-          Back to Dashboard
-        </Link>
-      </div>
     </div>
   );
 };
