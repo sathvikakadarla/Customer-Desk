@@ -277,3 +277,30 @@ body {
   }
 }
 
+/* 📌 Status Dropdown */
+.status-dropdown {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.status-dropdown:hover {
+  background-color: #e8eff7;
+}
+.action-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: #1d4ed8;
+}
