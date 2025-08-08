@@ -1,23 +1,31 @@
 import express from "express";
-import Ticket from "../model/ticketModel.js"; // Import the Ticket model
+import Ticket from "../models/ticketModel.js"; // Import the Ticket model
 
 const router = express.Router();
 
 // Create a new ticket
-router.post("/create", async (req, res) => {
+import { protect } from "../middleware/auth.js";
+
+router.post("/create", protect, async (req, res) => {
   try {
-    const { mainCategory, issue, mobileNumber } = req.body;
-    if (!mainCategory || !issue || !mobileNumber) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
+    const { issue, subissue, mobileNumber } = req.body;
+
+    // Validate required fields (excluding userName, since we take it from req.user)
+    if (!issue || !mobileNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: issue and mobileNumber are mandatory."
+      });
     }
 
-    // Generate a unique ticket ID
+    // Generate unique ticket ID
     const ticketId = "TICKET_" + Date.now();
 
     const newTicket = await Ticket.create({
       ticketId,
-      mainCategory,
       issue,
+      subissue: subissue || "",
+      userName: req.user.userName, // <-- automatically from logged-in user
       mobileNumber,
       status: "open",
       createdAt: new Date(),
@@ -27,9 +35,14 @@ router.post("/create", async (req, res) => {
     res.status(201).json({ success: true, ticket: newTicket });
   } catch (error) {
     console.error("Error creating ticket:", error);
-    res.status(500).json({ success: false, message: "Server error. Could not create ticket." });
+    res.status(500).json({
+      success: false,
+      message: "Server error. Could not create ticket."
+    });
   }
 });
+
+
 
 // Fetch all tickets
 router.get("/", async (req, res) => {
