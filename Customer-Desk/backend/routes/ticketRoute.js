@@ -3,6 +3,34 @@ import Ticket from "../model/ticketModel.js"; // Import the Ticket model
 
 const router = express.Router();
 
+// Create a new ticket
+router.post("/create", async (req, res) => {
+  try {
+    const { mainCategory, issue, mobileNumber } = req.body;
+    if (!mainCategory || !issue || !mobileNumber) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Generate a unique ticket ID
+    const ticketId = "TICKET_" + Date.now();
+
+    const newTicket = await Ticket.create({
+      ticketId,
+      mainCategory,
+      issue,
+      mobileNumber,
+      status: "open",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    res.status(201).json({ success: true, ticket: newTicket });
+  } catch (error) {
+    console.error("Error creating ticket:", error);
+    res.status(500).json({ success: false, message: "Server error. Could not create ticket." });
+  }
+});
+
 // Fetch all tickets
 router.get("/", async (req, res) => {
   try {
