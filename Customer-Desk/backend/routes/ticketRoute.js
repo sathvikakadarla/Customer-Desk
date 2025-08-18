@@ -1,5 +1,5 @@
 import express from "express";
-import Ticket from "../models/ticketModel.js"; // Import the Ticket model
+import Ticket from "../model/ticketModel.js"; // Import the Ticket model
 
 // Fetch all tickets
 router.get("/", async (req, res) => {
