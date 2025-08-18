@@ -1,5 +1,6 @@
 import express from "express";
 import Ticket from "../model/ticketModel.js"; // Import the Ticket model
+const router = express.Router();
 
 // Fetch all tickets
 router.get("/", async (req, res) => {
